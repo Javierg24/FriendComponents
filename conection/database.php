@@ -3,8 +3,8 @@ class Database {
     private $host = "localhost";
     private $db_name = "tiendainformatica";
     private $username = "root";
-    private $password = "DAW2";
-    private $port = "3307"; // Cambia esto si usas otro puerto
+    private $password = "";
+    private $port = "3306"; // Cambia esto si usas otro puerto
     public $conn;
 
     public function getConnection() {

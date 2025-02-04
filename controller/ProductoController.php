@@ -24,7 +24,32 @@ switch ($method) {
             } else {
                 echo json_encode(["error" => "Producto no encontrado."]);
             }
-        } else {
+        } elseif (isset($_GET['nombreCategoria'])) {
+            // Obtener productos por categoría (según el nombre de la categoría)
+            $nombre_categoria = $_GET['nombreCategoria'];
+            
+            $productos = $producto->obtenerProductosPorCategoria($nombre_categoria);
+        
+            if (!empty($productos)) {
+                $productos_arr = array();
+                foreach ($productos as $row) {
+                    $producto_item = array(
+                        "id" => $row['id'],
+                        "nombre" => $row['nombre'],
+                        "descripcion" => $row['descripcion'],
+                        "precio" => $row['precio'],
+                        "valoracion" => $row['valoracion'],
+                        "imagen" => $row['imagen'],
+                        "categoria_nombre" => $nombre_categoria // Ahora devuelve el nombre en lugar del ID
+                    );
+                    array_push($productos_arr, $producto_item);
+                }
+                echo json_encode($productos_arr);
+            } else {
+                echo json_encode(["mensaje" => "No hay productos en esta categoría."]);
+            }
+        }
+        else {
             // Obtener todos los productos
             $stmt = $producto->obtenerProductos();
             $num = $stmt->rowCount();
@@ -117,4 +142,3 @@ switch ($method) {
         echo json_encode(["error" => "Método no permitido."]);
         break;
 }
-?>

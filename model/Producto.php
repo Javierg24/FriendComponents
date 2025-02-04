@@ -1,5 +1,6 @@
 <?php
-class Producto {
+class Producto
+{
     private $conn;
     private $table_name = "Productos";
 
@@ -12,12 +13,14 @@ class Producto {
     public $categoria_id;
 
     // Constructor con la conexión a la base de datos
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
     // Obtener todos los productos
-    public function obtenerProductos() {
+    public function obtenerProductos()
+    {
         $query = "SELECT * FROM " . $this->table_name;
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -25,7 +28,8 @@ class Producto {
     }
 
     // Obtener un producto por su ID
-    public function obtenerProductoPorId($id) {
+    public function obtenerProductoPorId($id)
+    {
         $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":id", $id);
@@ -33,8 +37,25 @@ class Producto {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Obtener productos por categoría
+    public function obtenerProductosPorCategoria($nombre_categoria) {
+        $query = "SELECT p.* 
+                  FROM " . $this->table_name . " p
+                  JOIN categorias c ON p.categoria_id = c.id
+                  WHERE c.nombre = :nombre_categoria";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":nombre_categoria", $nombre_categoria, PDO::PARAM_STR);
+        $stmt->execute();
+    
+        return $stmt->fetchAll(PDO::FETCH_ASSOC); // Devuelve un array asociativo con los resultados
+    }
+    
+    
+
     // Crear un nuevo producto
-    public function crearProducto() {
+    public function crearProducto()
+    {
         $query = "INSERT INTO " . $this->table_name . " 
                   (nombre, descripcion, precio, valoracion, imagen, categoria_id) 
                   VALUES (:nombre, :descripcion, :precio, :valoracion, :imagen, :categoria_id)";
@@ -64,7 +85,8 @@ class Producto {
     }
 
     // Actualizar producto
-    public function actualizarProducto() {
+    public function actualizarProducto()
+    {
         $query = "UPDATE " . $this->table_name . " 
                   SET nombre = :nombre, descripcion = :descripcion, precio = :precio, 
                       valoracion = :valoracion, imagen = :imagen, categoria_id = :categoria_id
@@ -97,7 +119,8 @@ class Producto {
     }
 
     // Eliminar producto
-    public function eliminarProducto() {
+    public function eliminarProducto()
+    {
         $query = "DELETE FROM " . $this->table_name . " WHERE id = :id";
         $stmt = $this->conn->prepare($query);
 
@@ -110,4 +133,3 @@ class Producto {
         return false;
     }
 }
-?>
