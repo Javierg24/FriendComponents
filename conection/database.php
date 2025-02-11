@@ -4,7 +4,7 @@ class Database {
     private $db_name = "tiendainformatica";
     private $username = "root";
     private $password = "";
-    private $port = "3306"; // Cambia esto si usas otro puerto
+    private $port = "3307"; // Cambia esto si usas otro puerto
     public $conn;
 
     public function getConnection() {
