@@ -177,65 +177,62 @@ class Carrito
     }
 
     // Actualizar la cantidad de un producto en el carrito
-    public function actualizarCantidadProducto()
-    {
+    public function actualizarCantidadProducto() {
         // Obtener el carrito_id para el usuario
         $query = "SELECT id FROM " . $this->table . " WHERE usuario_id = :usuario_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":usuario_id", $this->usuario_id, PDO::PARAM_INT);
         $stmt->execute();
         $carrito = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
         if (!$carrito) {
-            return json_encode(["error" => "Carrito no encontrado para el usuario"]);
+            error_log("No se encontró carrito para usuario_id: " . $this->usuario_id);
+            return false;
         }
-
+    
         $carrito_id = $carrito['id'];
-
-        // Verificar si el producto está en el carrito
-        $query = "SELECT id FROM " . $this->productosCarritoTable . " WHERE carrito_id = :carrito_id AND producto_id = :producto_id";
+        // Depuración: Loguear los valores que se van a usar
+        error_log("Actualizar cantidad: carrito_id = " . $carrito_id . 
+                  ", producto_id = " . $this->producto_id . 
+                  ", cantidad = " . $this->cantidad);
+    
+        // Actualizar la cantidad del producto en la tabla Productos_Carrito
+        $query = "UPDATE " . $this->productosCarritoTable . " 
+                  SET cantidad = :cantidad 
+                  WHERE carrito_id = :carrito_id AND producto_id = :producto_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":cantidad", $this->cantidad, PDO::PARAM_INT);
+        $stmt->bindParam(":carrito_id", $carrito_id, PDO::PARAM_INT);
+        $stmt->bindParam(":producto_id", $this->producto_id, PDO::PARAM_INT);
+    
+        return $stmt->execute();
+    }
+    
+    
+    public function productoExisteEnCarrito() {
+        // 1. Obtener el carrito_id para el usuario desde la tabla "Carrito"
+        $query = "SELECT id FROM " . $this->table . " WHERE usuario_id = :usuario_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":usuario_id", $this->usuario_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $carrito = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if (!$carrito) {
+            // No existe carrito para el usuario
+            return false;
+        }
+    
+        $carrito_id = $carrito['id'];
+    
+        // 2. Verificar en la tabla "Productos_Carrito" si existe el producto
+        $query = "SELECT id FROM " . $this->productosCarritoTable . " 
+                  WHERE carrito_id = :carrito_id AND producto_id = :producto_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":carrito_id", $carrito_id, PDO::PARAM_INT);
         $stmt->bindParam(":producto_id", $this->producto_id, PDO::PARAM_INT);
         $stmt->execute();
-
-        if ($stmt->rowCount() > 0) {
-            // Si el producto ya está en el carrito, actualizar la cantidad
-            $query = "UPDATE " . $this->productosCarritoTable . " SET cantidad = :cantidad WHERE carrito_id = :carrito_id AND producto_id = :producto_id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(":carrito_id", $carrito_id, PDO::PARAM_INT);
-            $stmt->bindParam(":producto_id", $this->producto_id, PDO::PARAM_INT);
-            $stmt->bindParam(":cantidad", $this->cantidad, PDO::PARAM_INT);
-
-            if ($stmt->execute()) {
-                return json_encode(["mensaje" => "Cantidad actualizada correctamente."]);
-            } else {
-                return json_encode(["error" => "No se pudo actualizar la cantidad del producto."]);
-            }
-        } else {
-            return json_encode(["error" => "Producto no encontrado en el carrito."]);
-        }
+    
+        return ($stmt->rowCount() > 0);
     }
-
-    public function productoExisteEnCarrito()
-    {
-        // Consulta para verificar si el producto ya está en el carrito
-        $query = "SELECT id FROM " . $this->table . " WHERE usuario_id = :usuario_id AND producto_id = :producto_id";
-
-        $stmt = $this->conn->prepare($query);
-
-        // Enlazar parámetros
-        $stmt->bindParam(':usuario_id', $this->usuario_id);
-        $stmt->bindParam(':producto_id', $this->producto_id);
-
-        // Ejecutar la consulta
-        $stmt->execute();
-
-        // Si la consulta devuelve un resultado, el producto ya existe en el carrito
-        if ($stmt->rowCount() > 0) {
-            return true;
-        }
-
-        return false;
-    }
+    
 }

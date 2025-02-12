@@ -85,7 +85,18 @@ switch ($method) {
 
         // En tu archivo de backend PHP donde eliminas el producto
     case 'DELETE':
+        // Intentar obtener datos desde el cuerpo de la solicitud
         $data = json_decode(file_get_contents("php://input"));
+
+        // Si no se reciben datos en el cuerpo, intentar obtenerlos desde $_GET
+        if (empty($data->usuario_id) || empty($data->producto_id)) {
+            if (isset($_GET['usuario_id']) && isset($_GET['producto_id'])) {
+                // Crear un objeto temporal para simular los datos recibidos
+                $data = new stdClass();
+                $data->usuario_id = $_GET['usuario_id'];
+                $data->producto_id = $_GET['producto_id'];
+            }
+        }
 
         if (!empty($data->usuario_id) && !empty($data->producto_id)) {
             $carrito->usuario_id = $data->usuario_id;
@@ -103,7 +114,6 @@ switch ($method) {
             echo json_encode(["error" => "Datos incompletos para eliminar el producto del carrito."]);
         }
         break;
-
 
     case 'PUT':
         // Actualizar la cantidad de un producto en el carrito
@@ -143,7 +153,6 @@ switch ($method) {
             echo json_encode(["error" => "Datos incompletos para actualizar la cantidad."]);
         }
         break;
-
 
     case 'CALCULAR_TOTAL':
         // Calcular el total del carrito de un usuario
