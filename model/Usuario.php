@@ -84,19 +84,21 @@ class Usuario {
 
     // Verificar el login del usuario
     public function verificarUsuario($correo, $contrasenia) {
-        $query = "SELECT id, nombre, contrasenia FROM " . $this->table . " WHERE correo = :correo LIMIT 1";
+        $query = "SELECT id, nombre, correo, contrasenia FROM " . $this->table . " WHERE correo = :correo LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":correo", $correo);
         $stmt->execute();
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
         if ($usuario && password_verify($contrasenia, $usuario['contrasenia'])) {
             return [
                 "id" => $usuario['id'],
-                "nombre" => $usuario['nombre']
+                "nombre" => $usuario['nombre'],
+                "correo" => $usuario['correo'] // Ahora devuelve el correo correctamente
             ];
         }
         return false;
     }
+    
 }
 ?>

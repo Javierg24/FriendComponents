@@ -253,12 +253,12 @@ class Carrito
         $carrito_id = $carrito['id'];
 
         // Sumar la cantidad total de productos en el carrito
-        $query = "SELECT SUM(cantidad) AS total_cantidad FROM " . $this->productosCarritoTable . " WHERE carrito_id = :carrito_id";
+        $query = "SELECT SUM(cantidad) AS cantidad_total FROM " . $this->productosCarritoTable . " WHERE carrito_id = :carrito_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":carrito_id", $carrito_id, PDO::PARAM_INT);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $result['total_cantidad'] ?? 0;
+        return $result['cantidad_total'] ?? 0;
     }
 }

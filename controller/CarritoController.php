@@ -14,6 +14,20 @@ $carrito = new Carrito($db);
 // Obtener el método HTTP
 $method = $_SERVER['REQUEST_METHOD'];
 
+$action = isset($_GET['action']) ? $_GET['action'] : '';
+
+// Si es una petición GET y se define 'action', verificamos si es GET_CANTIDAD_TOTAL
+if ($method === 'GET' && $action === 'GET_CANTIDAD_TOTAL') {
+    if (isset($_GET['usuario_id'])) {
+        $usuario_id = $_GET['usuario_id'];
+        $cantidadTotal = $carrito->obtenerCantidadTotalProductos($usuario_id);
+        echo json_encode(["cantidad_total" => $cantidadTotal]);
+    } else {
+        echo json_encode(["error" => "ID de usuario no proporcionado para obtener la cantidad total de productos."]);
+    }
+    exit; // Salir para evitar ejecutar el resto del switch
+}
+
 switch ($method) {
     case 'GET':
         if (isset($_GET['usuario_id'])) {
@@ -168,19 +182,5 @@ switch ($method) {
         } else {
             echo json_encode(["error" => "ID de usuario no proporcionado para calcular el total."]);
         }
-        break;
-
-    case 'GET_CANTIDAD_TOTAL':
-        if (isset($_GET['usuario_id'])) {
-            $usuario_id = $_GET['usuario_id'];
-            $cantidadTotal = $carrito->obtenerCantidadTotalProductos($usuario_id);
-            echo json_encode(["cantidad_total" => $cantidadTotal]);
-        } else {
-            echo json_encode(["error" => "ID de usuario no proporcionado para calcular la cantidad total de productos."]);
-        }
-        break;
-
-    default:
-        echo json_encode(["error" => "Método no permitido."]);
         break;
 }
