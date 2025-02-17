@@ -177,25 +177,26 @@ class Carrito
     }
 
     // Actualizar la cantidad de un producto en el carrito
-    public function actualizarCantidadProducto() {
+    public function actualizarCantidadProducto()
+    {
         // Obtener el carrito_id para el usuario
         $query = "SELECT id FROM " . $this->table . " WHERE usuario_id = :usuario_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":usuario_id", $this->usuario_id, PDO::PARAM_INT);
         $stmt->execute();
         $carrito = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
         if (!$carrito) {
             error_log("No se encontró carrito para usuario_id: " . $this->usuario_id);
             return false;
         }
-    
+
         $carrito_id = $carrito['id'];
         // Depuración: Loguear los valores que se van a usar
-        error_log("Actualizar cantidad: carrito_id = " . $carrito_id . 
-                  ", producto_id = " . $this->producto_id . 
-                  ", cantidad = " . $this->cantidad);
-    
+        error_log("Actualizar cantidad: carrito_id = " . $carrito_id .
+            ", producto_id = " . $this->producto_id .
+            ", cantidad = " . $this->cantidad);
+
         // Actualizar la cantidad del producto en la tabla Productos_Carrito
         $query = "UPDATE " . $this->productosCarritoTable . " 
                   SET cantidad = :cantidad 
@@ -204,26 +205,27 @@ class Carrito
         $stmt->bindParam(":cantidad", $this->cantidad, PDO::PARAM_INT);
         $stmt->bindParam(":carrito_id", $carrito_id, PDO::PARAM_INT);
         $stmt->bindParam(":producto_id", $this->producto_id, PDO::PARAM_INT);
-    
+
         return $stmt->execute();
     }
-    
-    
-    public function productoExisteEnCarrito() {
+
+
+    public function productoExisteEnCarrito()
+    {
         // 1. Obtener el carrito_id para el usuario desde la tabla "Carrito"
         $query = "SELECT id FROM " . $this->table . " WHERE usuario_id = :usuario_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":usuario_id", $this->usuario_id, PDO::PARAM_INT);
         $stmt->execute();
         $carrito = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
         if (!$carrito) {
             // No existe carrito para el usuario
             return false;
         }
-    
+
         $carrito_id = $carrito['id'];
-    
+
         // 2. Verificar en la tabla "Productos_Carrito" si existe el producto
         $query = "SELECT id FROM " . $this->productosCarritoTable . " 
                   WHERE carrito_id = :carrito_id AND producto_id = :producto_id";
@@ -231,8 +233,32 @@ class Carrito
         $stmt->bindParam(":carrito_id", $carrito_id, PDO::PARAM_INT);
         $stmt->bindParam(":producto_id", $this->producto_id, PDO::PARAM_INT);
         $stmt->execute();
-    
+
         return ($stmt->rowCount() > 0);
     }
-    
+
+    public function obtenerCantidadTotalProductos($usuario_id)
+    {
+        // Obtener el id del carrito para el usuario
+        $query = "SELECT id FROM " . $this->table . " WHERE usuario_id = :usuario_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":usuario_id", $usuario_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $carrito = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$carrito) {
+            return 0; // Si no hay carrito, la cantidad total es 0
+        }
+
+        $carrito_id = $carrito['id'];
+
+        // Sumar la cantidad total de productos en el carrito
+        $query = "SELECT SUM(cantidad) AS total_cantidad FROM " . $this->productosCarritoTable . " WHERE carrito_id = :carrito_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":carrito_id", $carrito_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result['total_cantidad'] ?? 0;
+    }
 }

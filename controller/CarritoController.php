@@ -170,6 +170,16 @@ switch ($method) {
         }
         break;
 
+    case 'GET_CANTIDAD_TOTAL':
+        if (isset($_GET['usuario_id'])) {
+            $usuario_id = $_GET['usuario_id'];
+            $cantidadTotal = $carrito->obtenerCantidadTotalProductos($usuario_id);
+            echo json_encode(["cantidad_total" => $cantidadTotal]);
+        } else {
+            echo json_encode(["error" => "ID de usuario no proporcionado para calcular la cantidad total de productos."]);
+        }
+        break;
+
     default:
         echo json_encode(["error" => "Método no permitido."]);
         break;
