@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $mail->Host = 'smtp.gmail.com'; // Servidor SMTP (Gmail: smtp.gmail.com)
         $mail->SMTPAuth = true;
         $mail->Username = 'friendcomponents@gmail.com'; // Tu correo
-        $mail->Password = 'A1234567.'; // Tu contraseña
+        $mail->Password = 'fyzu ndfn bqia kans'; // Tu contraseña
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // TLS o SSL
         $mail->Port = 587; // Puerto para TLS (465 para SSL)
 
