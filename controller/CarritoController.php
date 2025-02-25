@@ -28,6 +28,20 @@ if ($method === 'GET' && $action === 'GET_CANTIDAD_TOTAL') {
     exit; // Salir para evitar ejecutar el resto del switch
 }
 
+if ($method === 'DELETE' && $action === 'DELETE_ALL') {
+    if (isset($_GET['usuario_id'])) {
+        $usuario_id = $_GET['usuario_id'];
+        if ($carrito->vaciarCarrito($usuario_id)) {
+            echo json_encode(["mensaje" => "Carrito vacío exitosamente."]);
+        } else {
+            echo json_encode(["error" => "No se pudo vaciar el carrito."]);
+        }
+    } else {
+        echo json_encode(["error" => "ID de usuario no proporcionado para vaciar el carrito."]);
+    }
+    exit; // Salir para evitar ejecutar el resto del switch
+}
+
 switch ($method) {
     case 'GET':
         if (isset($_GET['usuario_id'])) {

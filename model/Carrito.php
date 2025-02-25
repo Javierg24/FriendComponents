@@ -111,6 +111,26 @@ class Carrito
         }
     }
 
+
+    // Eliminar el carrito y sus productos asociados
+    public function vaciarCarrito($usuario_id) {
+        // Crear la consulta SQL para eliminar todos los productos del carrito
+        $query = "DELETE FROM " . $this->table . " WHERE usuario_id = :usuario_id";
+
+        // Preparar la consulta
+        $stmt = $this->conn->prepare($query);
+
+        // Vincular el parámetro
+        $stmt->bindParam(":usuario_id", $usuario_id);
+
+        // Ejecutar la consulta
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
+
+
     // Eliminar un producto del carrito
     public function eliminarDelCarrito()
     {
